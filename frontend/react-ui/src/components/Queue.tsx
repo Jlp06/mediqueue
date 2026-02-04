@@ -13,7 +13,7 @@ export default function Queue({ user }: Props) {
 
     const generateToken = async () => {
         try {
-            const res = await api.post("http://localhost:5000/api/token", {
+            const res = await api.post("/api/token", {
                 user_id: user.id,
             });
 
@@ -28,7 +28,7 @@ export default function Queue({ user }: Props) {
     };
 
     const fetchQueue = async () => {
-        const res = await api.get("http://localhost:5000/api/queue", {
+        const res = await api.get("/api/queue", {
             headers: {
                 Authorization: `Bearer ${localStorage.getItem("token")}`,
             },

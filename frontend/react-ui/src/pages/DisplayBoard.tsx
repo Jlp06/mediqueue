@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import api from "../utils/axios";
 import { io } from "socket.io-client";
 
-const socket = io("http://localhost:5000");
+const socket = io("https://mediqueue-backend-wbxy.onrender.com");
 
 interface Token {
     token_number: number;

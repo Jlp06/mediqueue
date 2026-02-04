@@ -6,9 +6,9 @@ export default function AdminPanel() {
     const [queue, setQueue] = useState<QueueItem[]>([]);
 
     const serveNext = async () => {
-            await api.post("http://localhost:5000/api/queue/next");
+            await api.post("/api/queue/next");
 
-        const res = await api.get("http://localhost:5000/api/queue", {
+        const res = await api.get("/api/queue", {
             headers: {
                 Authorization: `Bearer ${localStorage.getItem("token")}`,
             },
@@ -18,7 +18,7 @@ export default function AdminPanel() {
 
     useEffect(() => {
         const loadQueue = async () => {
-            const res = await api.get("http://localhost:5000/api/queue", {
+            const res = await api.get("/api/queue", {
                 headers: {
                     Authorization: `Bearer ${localStorage.getItem("token")}`,
                 },

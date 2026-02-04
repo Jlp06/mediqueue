@@ -18,7 +18,7 @@ export default function Register({ setUser }: Props) {
             setLoading(true);
             setError("");
 
-            const res = await api.post("http://localhost:5000/api/register", {
+            const res = await api.post("/api/register", {
                 name,
                 email,
                 password,

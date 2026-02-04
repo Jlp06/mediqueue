@@ -20,7 +20,7 @@ export default function Login({ setUser }: Props) {
             setLoading(true);
             setError("");
 
-            const res = await axios.post("http://localhost:5000/api/login", {
+            const res = await axios.post("/api/login", {
                 email,
                 password,
             });

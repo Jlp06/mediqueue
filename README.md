@@ -1,4 +1,3 @@
-# MediQueue - Hospital Management System
 # MediQueue – Hospital Queue Management System
 
 MediQueue is a full-stack hospital queue management platform that helps reduce waiting time and improve patient experience through real-time digital token tracking.

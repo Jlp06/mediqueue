@@ -24,7 +24,7 @@ export default function CounterAssignment() {
     const fetchQueue = async () => {
         try {
             console.log("Fetching queue...");
-            const res = await api.get("/queue");
+            const res = await api.get("/api/queue");
 
             console.log("Queue response:", res.data);
             setQueue(res.data);
@@ -35,14 +35,23 @@ export default function CounterAssignment() {
     };
 
     useEffect(() => {
-        fetchQueue();
+        const loadQueue = async () => {
+            try {
+                const res = await api.get("api//queue");
+                setQueue(res.data);
+            } catch (error) {
+                console.error("Failed to fetch queue", error);
+            }
+        };
+
+        loadQueue();
     }, []);
 
     const assignNext = async () => {
         if (!selectedCounter) return alert("Select a counter");
 
         setLoading(true);
-        const res = await api.post("/queue/next");
+        const res = await api.post("/api/queue/next");
 
         setNowServing({
             token: res.data.served.token_number,

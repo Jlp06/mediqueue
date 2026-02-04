@@ -120,7 +120,8 @@ router.get("/queue", async (req, res) => {
         );
         res.json(result.rows);
     } catch (err) {
-        res.status(500).json({ message: "Failed to fetch queue" });
+        console.error("Database error in /queue:", err);
+        res.status(500).json({ message: "Failed to fetch queue", error: err.message });
     }
 });
 

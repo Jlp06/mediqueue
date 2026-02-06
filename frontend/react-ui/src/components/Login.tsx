@@ -1,4 +1,5 @@
 import { useState } from "react";
+import api from "../utils/axios";
 import axios from "axios";
 import type { User } from "../types";
 import { useNavigate } from "react-router-dom";
@@ -19,7 +20,7 @@ export default function Login({ setUser }: Props) {
             setLoading(true);
             setError("");
 
-            const res = await axios.post("/api/login", {
+            const res = await api.post("/api/login", {
                 email,
                 password,
             });
@@ -29,7 +30,7 @@ export default function Login({ setUser }: Props) {
             setUser(res.data.user);
 
             navigate("/dashboard");
-        } catch (err) {
+        } catch (err: unknown) {
             if (axios.isAxiosError(err)) {
                 setError(err.response?.data?.message || "Login failed");
             } else {

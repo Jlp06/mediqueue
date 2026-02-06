@@ -14,30 +14,34 @@ export default function Departments() {
     const [departments, setDepartments] = useState<Department[]>([]);
     const [showModal, setShowModal] = useState(false);
 
-    const fetchDepartments = async () => {
-        const res = await api.get("/departments");
-        setDepartments(res.data);
-    };
-
     useEffect(() => {
-        fetchDepartments();
+        const loadDepartments = async () => {
+            const res = await api.get("/api/departments");
+            setDepartments(res.data);
+        };
+
+        loadDepartments();
     }, []);
 
-    const addDepartment = async (dep: any) => {
-        const res = await api.post("/departments", dep);
-        setDepartments([res.data, ...departments]);
+    const addDepartment = async (dep: Omit<Department, "id">) => {
+        const res = await api.post("/api/departments", dep);
+
+        setDepartments(prev => [res.data, ...prev]);
     };
 
     const deleteDepartment = async (id: number) => {
-        await api.delete(`/departments/${id}`);
-        setDepartments(departments.filter(d => d.id !== id));
+        await api.delete(`/api/departments/${id}`);
+
+        setDepartments(prev => prev.filter(d => d.id !== id));
     };
 
     return (
         <div>
             <div className="page-header">
                 <h2>Departments</h2>
-                <button onClick={() => setShowModal(true)}>Add Department</button>
+                <button onClick={() => setShowModal(true)}>
+                    Add Department
+                </button>
             </div>
 
             <div className="card-grid">
@@ -51,7 +55,10 @@ export default function Departments() {
                             {dep.active ? "Active" : "Inactive"}
                         </span>
 
-                        <button className="danger-btn" onClick={() => deleteDepartment(dep.id)}>
+                        <button
+                            className="danger-btn"
+                            onClick={() => deleteDepartment(dep.id)}
+                        >
                             Delete
                         </button>
                     </div>

@@ -1,9 +1,16 @@
 import { useState } from "react";
 
+interface DepartmentInput {
+    name: string;
+    counters: number;
+    doctors: number;
+    active: boolean;
+}
+
 interface Props {
     open: boolean;
     onClose: () => void;
-    onAdd: (dep: any) => void;
+    onAdd: (dep: DepartmentInput) => void;
 }
 
 export default function AddDepartmentModal({ open, onClose, onAdd }: Props) {
@@ -17,11 +24,9 @@ export default function AddDepartmentModal({ open, onClose, onAdd }: Props) {
         if (!name.trim()) return alert("Enter department name");
 
         onAdd({
-            id: Date.now(),
             name,
             counters,
             doctors,
-            waiting: 0,
             active: true,
         });
 
@@ -58,7 +63,9 @@ export default function AddDepartmentModal({ open, onClose, onAdd }: Props) {
 
                 <div className="modal-actions">
                     <button onClick={handleSubmit}>Add</button>
-                    <button className="danger-btn" onClick={onClose}>Cancel</button>
+                    <button className="danger-btn" onClick={onClose}>
+                        Cancel
+                    </button>
                 </div>
             </div>
         </div>

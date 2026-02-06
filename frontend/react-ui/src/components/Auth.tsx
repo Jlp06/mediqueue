@@ -22,7 +22,10 @@ export default function Auth({ setUser, defaultMode = "login" }: Props) {
                     <Login setUser={setUser} />
                     <p>
                         Don’t have an account?{" "}
-                        <span className="link" onClick={() => setIsLogin(false)}>
+                        <span
+                            className="link"
+                            onClick={() => setIsLogin(false)}
+                        >
                             Register
                         </span>
                     </p>
@@ -32,7 +35,10 @@ export default function Auth({ setUser, defaultMode = "login" }: Props) {
                     <Register setUser={setUser} />
                     <p>
                         Already have an account?{" "}
-                        <span className="link" onClick={() => setIsLogin(true)}>
+                        <span
+                            className="link"
+                            onClick={() => setIsLogin(true)}
+                        >
                             Login
                         </span>
                     </p>

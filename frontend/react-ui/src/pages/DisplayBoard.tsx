@@ -13,17 +13,17 @@ interface Token {
 export default function DisplayBoard() {
     const [tokens, setTokens] = useState<Token[]>([]);
 
-    const fetchTokens = async () => {
-        const res = await api.get("/tokens");
-        setTokens(res.data);
-    };
-
     useEffect(() => {
-        fetchTokens();
+        const loadTokens = async () => {
+            const res = await api.get("/api/tokens");
+            setTokens(res.data);
+        };
+
+        loadTokens();
 
         socket.on("tokenUpdate", () => {
             console.log("Real-time update received");
-            fetchTokens();
+            loadTokens();
         });
 
         return () => {
@@ -41,7 +41,9 @@ export default function DisplayBoard() {
             <div className="now-serving-big">
                 <h2>NOW SERVING</h2>
                 {current ? (
-                    <h1 className="big-token">Token {current.token_number}</h1>
+                    <h1 className="big-token">
+                        Token {current.token_number}
+                    </h1>
                 ) : (
                     <h2>Waiting...</h2>
                 )}

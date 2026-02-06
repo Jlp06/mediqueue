@@ -24,19 +24,23 @@ function App() {
   };
 
   useEffect(() => {
-    const token = localStorage.getItem("token");
+    const loadUser = () => {
+      const token = localStorage.getItem("token");
 
-    if (token) {
-      try {
-        const payload = JSON.parse(atob(token.split(".")[1]));
-        setUser(payload as User);
-      } catch (err) {
-        console.error("Invalid token");
-        localStorage.removeItem("token");
+      if (token) {
+        try {
+          const payload = JSON.parse(atob(token.split(".")[1]));
+          setUser(payload as User);
+        } catch {
+          console.error("Invalid token");
+          localStorage.removeItem("token");
+        }
       }
-    }
 
-    setLoading(false);
+      setLoading(false);
+    };
+
+    loadUser();
   }, []);
 
   if (loading) {
@@ -53,7 +57,7 @@ function App() {
         path="/dashboard"
         element={user ? <DashboardLayout user={user} onLogout={logout} /> : <Navigate to="/" />}
       >
-        <Route index element={<Dashboard user={user} />} />
+        <Route index element={<Dashboard user={user!} />} />
 
         {user?.role === "admin" && (
           <>

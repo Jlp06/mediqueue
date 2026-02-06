@@ -1,5 +1,6 @@
 import { useState } from "react";
 import api from "../utils/axios";
+import axios from "axios";
 import type { User } from "../types";
 
 interface Props {
@@ -25,8 +26,8 @@ export default function Register({ setUser }: Props) {
             });
 
             setUser(res.data.user);
-        } catch (err) {
-            if (api.isAxiosError(err)) {
+        } catch (err: unknown) {
+            if (axios.isAxiosError(err)) {
                 setError(err.response?.data?.message || "Registration failed");
             } else {
                 setError("Something went wrong");

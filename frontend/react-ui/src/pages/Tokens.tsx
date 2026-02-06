@@ -12,31 +12,33 @@ interface Token {
 export default function Tokens() {
     const [tokens, setTokens] = useState<Token[]>([]);
 
-    const fetchTokens = async () => {
-        const res = await api.get("/tokens");
-        setTokens(res.data);
-    };
-
     useEffect(() => {
-        fetchTokens();
+        const loadTokens = async () => {
+            const res = await api.get("/api/tokens");
+            setTokens(res.data);
+        };
+
+        loadTokens();
     }, []);
 
     const serveNext = async () => {
-        const res = await api.post("/tokens/serve-next");
+        const res = await api.post("/api/tokens/serve-next");
 
         if (res.data.message) {
             alert(res.data.message);
         }
 
-        fetchTokens();
+        const updated = await api.get("/api/tokens");
+        setTokens(updated.data);
     };
 
     const completeToken = async (id: number) => {
-        await api.post(`/tokens/complete/${id}`);
-        fetchTokens();
+        await api.post(`/api/tokens/complete/${id}`);
+
+        const updated = await api.get("/api/tokens");
+        setTokens(updated.data);
     };
 
-    // Find currently serving token
     const current = tokens.find(t => t.status === "serving");
 
     return (
@@ -45,7 +47,6 @@ export default function Tokens() {
 
             <button onClick={serveNext}>Serve Next Token</button>
 
-            {/* NOW SERVING PANEL */}
             {current && (
                 <div className="now-serving-card">
                     <h2>🚨 Now Serving</h2>
@@ -54,7 +55,6 @@ export default function Tokens() {
                 </div>
             )}
 
-            {/* TOKEN TABLE */}
             <table className="table">
                 <thead>
                     <tr>

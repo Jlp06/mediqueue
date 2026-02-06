@@ -14,7 +14,6 @@ export default function Login({ setUser }: Props) {
     const [error, setError] = useState("");
     const navigate = useNavigate();
 
-
     const loginUser = async () => {
         try {
             setLoading(true);
@@ -24,9 +23,11 @@ export default function Login({ setUser }: Props) {
                 email,
                 password,
             });
+
             localStorage.setItem("token", res.data.token);
 
             setUser(res.data.user);
+
             navigate("/dashboard");
         } catch (err) {
             if (axios.isAxiosError(err)) {
@@ -34,7 +35,7 @@ export default function Login({ setUser }: Props) {
             } else {
                 setError("Something went wrong");
             }
-        }finally {
+        } finally {
             setLoading(false);
         }
     };

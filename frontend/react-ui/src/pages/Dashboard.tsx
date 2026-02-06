@@ -12,23 +12,21 @@ export default function Dashboard({ user }: { user: User }) {
     const [aheadCount, setAheadCount] = useState<number>(0);
 
     useEffect(() => {
+        const loadToken = async () => {
+            const res = await api.get("/api/queue/my-token");
+            setMyToken(res.data.token_number);
+            setAheadCount(res.data.ahead);
+        };
+
         if (user.role === "user") {
-            fetchMyToken();
+            loadToken();
         }
-    }, []);
-
-    const fetchMyToken = async () => {
-        const res = await api.get("/queue/my-token");
-        setMyToken(res.data.token_number);
-        setAheadCount(res.data.ahead);
-    };
-
+    }, [user]);
+   // 👈 also fix dependency
     return (
         <>
-            {/* Stats Cards */}
             <DashboardStats />
 
-            {/* ⭐ PATIENT TOKEN CARD */}
             {user.role === "user" && (
                 <div className="my-token-card">
                     <h3>🎟 Your Token</h3>
@@ -38,10 +36,8 @@ export default function Dashboard({ user }: { user: User }) {
                 </div>
             )}
 
-            {/* Live Queue */}
             <Queue user={user} />
 
-            {/* Admin Panel */}
             {user.role === "admin" ? (
                 <>
                     <AdminPanel />

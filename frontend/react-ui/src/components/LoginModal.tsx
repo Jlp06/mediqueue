@@ -1,11 +1,13 @@
 import Auth from "./Auth";
 import { motion, AnimatePresence } from "framer-motion";
+import type { User } from "../types";
+
 
 interface Props {
     open: boolean;
     onClose: () => void;
-    setUser: any;
-    mode: "login" | "register";
+    setUser: (user: User) => void;
+    mode?: "login" | "register";
 }
 
 export default function LoginModal({ open, onClose, setUser, mode }: Props) {
@@ -25,7 +27,10 @@ export default function LoginModal({ open, onClose, setUser, mode }: Props) {
                         exit={{ y: "100%" }}
                         transition={{ duration: 0.35, ease: "easeOut" }}
                     >
-                        <button className="modal-close" onClick={onClose}>✕</button>
+                        <button className="modal-close" onClick={onClose}>
+                            ✕
+                        </button>
+
                         <Auth setUser={setUser} defaultMode={mode} />
                     </motion.div>
                 </motion.div>

@@ -19,30 +19,35 @@ export default function Counters() {
     const [deptId, setDeptId] = useState<number | null>(null);
 
     useEffect(() => {
-        fetchCounters();
-        fetchDepartments();
+        const loadData = async () => {
+            const countersRes = await api.get("/api/counters");
+            setCounters(countersRes.data);
+
+            const departmentsRes = await api.get("/api/departments");
+            setDepartments(departmentsRes.data);
+        };
+
+        loadData();
     }, []);
-
-    const fetchCounters = async () => {
-        const res = await api.get("/counters");
-        setCounters(res.data);
-    };
-
-    const fetchDepartments = async () => {
-        const res = await api.get("/departments");
-        setDepartments(res.data);
-    };
 
     const addCounter = async () => {
         if (!name || !deptId) return alert("Fill all fields");
-        await api.post("/counters", { name, department_id: deptId });
+
+        await api.post("/api/counters", { name, department_id: deptId });
+
         setName("");
-        fetchCounters();
+
+        // reload counters after adding
+        const res = await api.get("/api/counters");
+        setCounters(res.data);
     };
 
+
     const deleteCounter = async (id: number) => {
-        await api.delete(`/counters/${id}`);
-        fetchCounters();
+        await api.delete(`/api/counters/${id}`);
+
+        const res = await api.get("/api/counters");
+        setCounters(res.data);
     };
 
     return (
@@ -80,7 +85,10 @@ export default function Counters() {
                             <td>{c.name}</td>
                             <td>{c.department_name}</td>
                             <td>
-                                <button className="danger-btn" onClick={() => deleteCounter(c.id)}>
+                                <button
+                                    className="danger-btn"
+                                    onClick={() => deleteCounter(c.id)}
+                                >
                                     Delete
                                 </button>
                             </td>

@@ -11,6 +11,7 @@ interface Props {
 export default function Home({ setUser }: Props) {
     const token = localStorage.getItem("token");
     const [showLogin, setShowLogin] = useState(false);
+    const [authMode, setAuthMode] = useState<"login" | "register">("login");
 
     return (
         <div className="landing">
@@ -28,14 +29,20 @@ export default function Home({ setUser }: Props) {
                         <>
                             <button
                                 className="btn-primary small-btn"
-                                onClick={() => setShowLogin(true)}
+                                onClick={() => {
+                                    setAuthMode("login");
+                                    setShowLogin(true);
+                                }}
                             >
                                 Login
                             </button>
 
                             <button
                                 className="btn-secondary small-btn"
-                                onClick={() => setShowLogin(true)}
+                                onClick={() => {
+                                    setAuthMode("register");
+                                    setShowLogin(true);
+                                }}
                             >
                                 Register
                             </button>
@@ -70,7 +77,10 @@ export default function Home({ setUser }: Props) {
                         ) : (
                             <button
                                 className="btn-primary big"
-                                onClick={() => setShowLogin(true)}
+                                onClick={() => {
+                                    setAuthMode("login");
+                                    setShowLogin(true);
+                                }}
                             >
                                 View My Queue
                             </button>
@@ -204,7 +214,10 @@ export default function Home({ setUser }: Props) {
 
                 <button
                     className="btn-primary big"
-                    onClick={() => setShowLogin(true)}
+                    onClick={() => {
+                        setAuthMode("login");
+                        setShowLogin(true);
+                    }}
                 >
                     Get Started Now
                 </button>
@@ -219,6 +232,7 @@ export default function Home({ setUser }: Props) {
                 open={showLogin}
                 onClose={() => setShowLogin(false)}
                 setUser={setUser}
+                mode={authMode}
             />
         </div>
     );

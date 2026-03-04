@@ -46,27 +46,18 @@ export default function Home({ setUser }: Props) {
 
             {/* HERO SECTION */}
             <section className="hero-modern">
-
-                <div className="hero-overlay"></div>
-
-                <img
-                    className="hero-bg-image"
-                    src={heroImage}
-                    alt="patient tracking queue"
-                />
-
                 <div className="hero-content">
-
                     <span className="hero-badge">Patient Queue Made Simple</span>
 
                     <h1>
-                        Track Your Hospital Queue{" "}
+                        Track Your Hospital Queue
+                        {" "}
                         <span className="highlight">From Anywhere</span>
                     </h1>
 
                     <p>
-                        Get a digital token, monitor your position in real time, and avoid
-                        long waiting lines at the hospital.
+                        No more standing in long lines. Get a digital token, monitor your
+                        position in real time, and reach the hospital exactly when your turn arrives.
                     </p>
 
                     <div className="hero-buttons">
@@ -81,19 +72,29 @@ export default function Home({ setUser }: Props) {
                                 className="btn-primary big"
                                 onClick={() => setShowLogin(true)}
                             >
-                                Patient Login
+                                View My Queue
                             </button>
                         )}
 
                         <Link to="/dashboard">
-                            <button className="btn-secondary">
+                            <button className="btn-secondary hero-outline">
                                 Track Queue Status
                             </button>
                         </Link>
                     </div>
 
+                    <p className="hero-features">
+                        Real-Time Updates - Digital Token System - Less Waiting Time
+                    </p>
                 </div>
 
+                <div className="hero-image-card">
+                    <img
+                        className="hero-side-image"
+                        src={heroImage}
+                        alt="Patients waiting while checking queue status"
+                    />
+                </div>
             </section>
             
             {/* STATS SECTION */}

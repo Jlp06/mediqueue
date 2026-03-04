@@ -1210,7 +1210,8 @@ button.secondary:hover {
 
 .hero-content .highlight {
     color: #1d63d7;
-    margin-left: 0.4rem;
+    margin-left: 0;
+    white-space: nowrap;
 }
 
 .hero-badge {
@@ -1300,7 +1301,7 @@ button.secondary:hover {
     }
 
     .hero-content .highlight {
-        margin-left: 0.2rem;
+        margin-left: 0;
     }
 
     .hero-badge {

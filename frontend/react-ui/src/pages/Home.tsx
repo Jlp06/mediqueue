@@ -50,9 +50,9 @@ export default function Home({ setUser }: Props) {
                     <span className="hero-badge">Patient Queue Made Simple</span>
 
                     <h1>
-                        Track Your Hospital Queue
-                        {" "}
-                        <span className="highlight">From Anywhere</span>
+                        Track Your Hospital
+                        <br />
+                        Queue<span className="highlight">From Anywhere</span>
                     </h1>
 
                     <p>

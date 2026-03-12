@@ -29,7 +29,7 @@ export default function DashboardStats() {
 
     useEffect(() => {
         const fetchStats = async () => {
-            const res = await api.get("/tokens");
+            const res = await api.get("/api/tokens");
             const tokens = res.data;
 
             const total = tokens.length;

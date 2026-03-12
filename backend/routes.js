@@ -83,32 +83,19 @@ router.post("/login", async (req, res) => {
 });
 
 /* GENERATE TOKEN */
-router.post("/token", async (req, res) => {
+/* GET ALL TOKENS - for dashboard stats */
+router.get("/tokens", authenticate, async (req, res) => {
     try {
-        const { user_id } = req.body;
-
-        // prevent duplicate token for same user
-        const exists = await pool.query(
-            "SELECT * FROM queue WHERE user_id = $1",
-            [user_id]
-        );
-
-        if (exists.rows.length > 0) {
-            return res.status(400).json({
-                message: "Token already exists",
-                token_number: exists.rows[0].token_number,
-            });
-        }
-
         const result = await pool.query(
-            "INSERT INTO queue (user_id) VALUES ($1) RETURNING token_number",
-            [user_id]
+            `SELECT t.*, d.name as department_name 
+             FROM tokens t 
+             LEFT JOIN departments d ON t.department_id = d.id 
+             ORDER BY t.created_at DESC`
         );
-
-        res.json(result.rows[0]);
+        res.json(result.rows);
     } catch (err) {
         console.error(err);
-        res.status(500).json({ message: "Token generation failed" });
+        res.status(500).json({ message: "Failed to fetch tokens" });
     }
 });
 

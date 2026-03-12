@@ -14,12 +14,15 @@ import DisplayBoard from "./pages/DisplayBoard";
 import DepartmentAnalytics from "./pages/DepartmentAnalytics";
 
 function App() {
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState(() => {
+    const stored = localStorage.getItem("user");
+    return stored ? JSON.parse(stored) : null;
+  });
   const [loading, setLoading] = useState(true);
 
 
   const logout = () => {
-    localStorage.removeItem("token");
+    localStorage.removeItem("user");
     setUser(null);
   };
 

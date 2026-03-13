@@ -144,4 +144,24 @@ router.delete("/queue/:token", async (req, res) => {
     res.json({ message: "Token removed" });
 });
 
+router.get("/queue/my-token", authenticate, async (req, res) => {
+    try {
+        const result = await pool.query(
+            "SELECT * FROM queue WHERE user_id = $1",
+            [req.user.id]
+        );
+        if (result.rows.length === 0) {
+            return res.json({ token_number: null, ahead: 0 });
+        }
+        const token = result.rows[0];
+        const ahead = await pool.query(
+            "SELECT COUNT(*) FROM queue WHERE token_number < $1",
+            [token.token_number]
+        );
+        res.json({ token_number: token.token_number, ahead: parseInt(ahead.rows[0].count) });
+    } catch (err) {
+        res.status(500).json({ message: "Failed to fetch token" });
+    }
+});
+
 module.exports = router;

@@ -16,14 +16,14 @@ router.get("/", async (req, res) => {
 
 // Generate token
 router.post("/generate", async (req, res) => {
-    const { department_id } = req.body;
+    const { department_id, user_id } = req.body;
 
     const last = await db.query("SELECT MAX(token_number) FROM tokens");
     const token_number = (last.rows[0].max || 0) + 1;
 
     const result = await db.query(
-        "INSERT INTO tokens (token_number, department_id) VALUES ($1,$2) RETURNING *",
-        [token_number, department_id]
+        "INSERT INTO tokens (token_number, department_id, counter_id, user_id) VALUES ($1,$2,$3,$4) RETURNING *",
+        [token_number, department_id, 1, user_id]
     );
 
     res.json(result.rows[0]);

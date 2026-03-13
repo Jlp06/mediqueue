@@ -13,7 +13,8 @@ export default function Queue({ user }: Props) {
 
     const generateToken = async () => {
         try {
-            const res = await api.post("/api/token", {
+            const res = await api.post("/api/tokens/generate", {
+                department_id: 1,
                 user_id: user.id,
             });
 

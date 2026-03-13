@@ -133,17 +133,6 @@ router.post("/queue/next", authenticate, authenticate, authorizeAdmin, async (re
     }
 });
 
-router.delete("/queue/:token", async (req, res) => {
-    const { token } = req.params;
-
-    await pool.query(
-        "DELETE FROM queue WHERE token_number = $1",
-        [token]
-    );
-
-    res.json({ message: "Token removed" });
-});
-
 router.get("/queue/my-token", authenticate, async (req, res) => {
     try {
         const result = await pool.query(
@@ -162,6 +151,17 @@ router.get("/queue/my-token", authenticate, async (req, res) => {
     } catch (err) {
         res.status(500).json({ message: "Failed to fetch token" });
     }
+});
+
+router.delete("/queue/:token", async (req, res) => {
+    const { token } = req.params;
+
+    await pool.query(
+        "DELETE FROM queue WHERE token_number = $1",
+        [token]
+    );
+
+    res.json({ message: "Token removed" });
 });
 
 module.exports = router;

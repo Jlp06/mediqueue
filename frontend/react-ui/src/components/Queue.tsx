@@ -17,12 +17,9 @@ export default function Queue({ user }: Props) {
                 department_id: 1,
                 user_id: user.id,
             });
-            console.log(res.data);
- 
             setToken(res.data.token_number);
             setSuccess("Token generated successfully 🎉");
             fetchQueue();
-
             setTimeout(() => setSuccess(""), 3000);
         } catch {
             // optional: error handling later
@@ -40,61 +37,75 @@ export default function Queue({ user }: Props) {
 
     useEffect(() => {
         fetchQueue();
-
-        const interval = setInterval(() => {
-            fetchQueue();
-        }, 5000);
-
+        const interval = setInterval(fetchQueue, 5000);
         return () => clearInterval(interval);
-    }, []);
+    }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
-    const userIndex = queue.findIndex(q => q.user_id === user.id);
-    const hasToken = userIndex !== -1;
-    
+    const userToken = queue.find(q => q.user_id === user.id);
+    const hasToken = !!userToken;
+    const nowServingToken = queue.find(q => q.status === "serving");
+    const tokensAhead = userToken
+        ? queue.filter(q => q.status === "waiting" && q.token_number < userToken.token_number)
+        : [];
+
     return (
-            <div className="card">
-                <h2>Live Queue</h2>
-                <p className="muted">Auto-refreshes every 5 seconds</p>
+        <div className="card">
+            <h2>Live Queue</h2>
+            <p className="muted">Auto-refreshes every 5 seconds</p>
 
-                {success && <p className="success">{success}</p>}
+            {success && <p className="success">{success}</p>}
 
-                <button onClick={generateToken} disabled={hasToken}>
-                    {hasToken ? "Token Already Generated" : "Generate Token"}
-                </button>
+            <button onClick={generateToken} disabled={hasToken}>
+                {hasToken ? "Token Already Generated" : "Generate Token"}
+            </button>
 
-                {queue.length === 0 ? (
+            {/* Now Serving Banner */}
+            {nowServingToken && (
+                <div style={{
+                    background: "#0b5ed7",
+                    color: "white",
+                    borderRadius: "8px",
+                    padding: "12px",
+                    textAlign: "center",
+                    margin: "12px 0"
+                }}>
+                    <p style={{ margin: 0, fontSize: "0.85rem" }}>🔔 Now Serving</p>
+                    <h2 style={{ margin: "4px 0" }}>Token #{nowServingToken.token_number}</h2>
+                    {nowServingToken.counter_name && (
+                        <p style={{ margin: 0, fontSize: "0.85rem" }}>
+                            at {nowServingToken.counter_name}
+                        </p>
+                    )}
+                </div>
+            )}
+
+            {userToken ? (
+                <>
+                    <p className="status">
+                        Your Token: <b>#{userToken.token_number}</b><br />
+                        People ahead of you: <b>{tokensAhead.length}</b>
+                    </p>
+
+                    {tokensAhead.length === 0 ? (
+                        <p style={{ color: "green", fontWeight: "bold" }}>
+                            🎉 You're next!
+                        </p>
+                    ) : (
+                        <ul className="queue-list">
+                            {tokensAhead.map((q) => (
+                                <li key={q.id}>Token #{q.token_number}</li>
+                            ))}
+                        </ul>
+                    )}
+                </>
+            ) : (
+                queue.filter(q => q.status === "waiting").length === 0 && (
                     <>
                         <h3>No patients in queue</h3>
                         <p>The queue is currently empty.</p>
                     </>
-                ) : (
-                    <>
-                        {token && (
-                            <p style={{ textAlign: "center", marginTop: "1rem" }}>
-                                Your Token: <strong>{token}</strong>
-                            </p>
-                        )}
-
-                        {userIndex !== -1 && (
-                            <p className="status">
-                                Your position in queue: <b>{userIndex + 1}</b><br />
-                                People ahead of you: <b>{userIndex}</b>
-                            </p>
-                        )}
-
-                        <ul className="queue-list">
-                            {queue.map((q) => (
-                                <li
-                                    key={q.token_number}
-                                    className={q.user_id === user.id ? "my-token" : ""}
-                                >
-                                    Token #{q.token_number}
-                                    {q.user_id === user.id && " (You)"}
-                                </li>
-                            ))}
-                        </ul>
-                    </>
-                )}
-            </div>
+                )
+            )}
+        </div>
     );
 }

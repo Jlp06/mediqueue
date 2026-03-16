@@ -30,7 +30,7 @@ export default function Queue({ user }: Props) {
     };
 
     const fetchQueue = async () => {
-        const res = await api.get("/api/queue", {
+        const res = await api.get("/api/tokens", {
             headers: {
                 Authorization: `Bearer ${localStorage.getItem("token")}`,
             },

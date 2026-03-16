@@ -8,7 +8,7 @@ export default function AdminPanel() {
     const fetchQueue = async () => {
         const res = await api.get("/api/tokens");
         // Only show waiting and serving tokens
-        setQueue(res.data.filter((t: QueueItem) => t.status === "waiting" || t.status === "serving"));
+        setQueue(res.data.filter((t: QueueItem) => t.status === "waiting"));
     };
 
     const serveNext = async () => {

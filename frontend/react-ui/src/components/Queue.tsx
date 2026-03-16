@@ -17,7 +17,8 @@ export default function Queue({ user }: Props) {
                 department_id: 1,
                 user_id: user.id,
             });
-
+            console.log(res.data);
+ 
             setToken(res.data.token_number);
             setSuccess("Token generated successfully 🎉");
             fetchQueue();

@@ -1,64 +1,45 @@
 import { useEffect, useState } from "react";
 import api from "../../utils/axios";
-
-interface Token {
-    token_number: number;
-}
-
-const counters = [
-    { id: 1, name: "Counter 1" },
-    { id: 2, name: "Counter 2" },
-    { id: 3, name: "Counter 3" },
-];
+import type { QueueItem } from "../../types";
 
 export default function CounterAssignment() {
-    const [queue, setQueue] = useState<Token[]>([]);
-    const [selectedCounter, setSelectedCounter] = useState<number | null>(null);
+    const [queue, setQueue] = useState<QueueItem[]>([]);
     const [loading, setLoading] = useState(false);
-    
     const [nowServing, setNowServing] = useState<{
         token: number;
-        counter: number;
+        counter: string;
     } | null>(null);
 
     const fetchQueue = async () => {
         try {
-            console.log("Fetching queue...");
-            const res = await api.get("/api/queue");
-
-            console.log("Queue response:", res.data);
-            setQueue(res.data);
+            const res = await api.get("/api/tokens");
+            setQueue(res.data.filter((t: QueueItem) => t.status === "waiting"));
         } catch (error) {
             console.error("Failed to fetch queue", error);
-            alert("Failed to fetch queue. Check backend.");
         }
     };
 
     useEffect(() => {
-        const loadQueue = async () => {
-            try {
-                const res = await api.get("api/queue");
-                setQueue(res.data);
-            } catch (error) {
-                console.error("Failed to fetch queue", error);
-            }
-        };
-
-        loadQueue();
+        // eslint-disable-next-line
+        fetchQueue();
+        const interval = setInterval(fetchQueue, 5000);
+        return () => clearInterval(interval);
     }, []);
 
     const assignNext = async () => {
-        if (!selectedCounter) return alert("Select a counter");
-
         setLoading(true);
-        const res = await api.post("/api/queue/next");
-
-        setNowServing({
-            token: res.data.served.token_number,
-            counter: selectedCounter,
-        });
-
-        await fetchQueue();
+        try {
+            const res = await api.post("/api/tokens/serve-next");
+            if (res.data.token_number) {
+                setNowServing({
+                    token: res.data.token_number,
+                    counter: res.data.counter,
+                });
+            }
+            await fetchQueue();
+        } catch (error) {
+            console.error("Failed to serve next", error);
+        }
         setLoading(false);
     };
 
@@ -70,29 +51,16 @@ export default function CounterAssignment() {
 
             {nextToken ? (
                 <>
-                    <p>
-                        Next Token: <b>#{nextToken.token_number}</b>
-                    </p>
-
-                    <select
-                        value={selectedCounter ?? ""}
-                        onChange={(e) => setSelectedCounter(Number(e.target.value))}
-                    >
-                        <option value="">Select Counter</option>
-                        {counters.map((c) => (
-                            <option key={c.id} value={c.id}>
-                                {c.name}
-                            </option>
-                        ))}
-                    </select>
+                    <p>Next Token: <b>#{nextToken.token_number}</b></p>
+                    <p className="muted">Department: {nextToken.department_name || "General"}</p>
 
                     <button disabled={loading} onClick={assignNext}>
-                        Assign & Serve
+                        {loading ? "Assigning..." : "Assign & Serve"}
                     </button>
-                    
+
                     {nowServing && (
                         <p className="success" style={{ marginTop: "10px" }}>
-                            Now serving Token #{nowServing.token} at Counter {nowServing.counter}
+                            Now serving Token #{nowServing.token} at {nowServing.counter}
                         </p>
                     )}
                 </>

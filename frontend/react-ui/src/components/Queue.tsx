@@ -7,17 +7,15 @@ interface Props {
 }
 
 export default function Queue({ user }: Props) {
-    const [token, setToken] = useState<number | null>(null);
     const [queue, setQueue] = useState<QueueItem[]>([]);
     const [success, setSuccess] = useState("");
 
     const generateToken = async () => {
         try {
-            const res = await api.post("/api/tokens/generate", {
+            await api.post("/api/tokens/generate", {
                 department_id: 1,
                 user_id: user.id,
             });
-            setToken(res.data.token_number);
             setSuccess("Token generated successfully 🎉");
             fetchQueue();
             setTimeout(() => setSuccess(""), 3000);
@@ -59,7 +57,6 @@ export default function Queue({ user }: Props) {
                 {hasToken ? "Token Already Generated" : "Generate Token"}
             </button>
 
-            {/* Now Serving Banner */}
             {nowServingToken && (
                 <div style={{
                     background: "#0b5ed7",
@@ -85,7 +82,6 @@ export default function Queue({ user }: Props) {
                         Your Token: <b>#{userToken.token_number}</b><br />
                         People ahead of you: <b>{tokensAhead.length}</b>
                     </p>
-
                     {tokensAhead.length === 0 ? (
                         <p style={{ color: "green", fontWeight: "bold" }}>
                             🎉 You're next!

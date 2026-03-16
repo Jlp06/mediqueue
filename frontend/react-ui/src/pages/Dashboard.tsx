@@ -3,7 +3,7 @@ import DashboardStats from "../components/dashboard/DashboardStats";
 import Queue from "../components/Queue";
 import AdminPanel from "../components/AdminPanel";
 import CounterAssignment from "../components/admin/CounterAssignment";
-import type { User } from "../types";
+import type { User, QueueItem } from "../types";
 import api from "../utils/axios";
 
 export default function Dashboard({ user }: { user: User }) {
@@ -13,16 +13,28 @@ export default function Dashboard({ user }: { user: User }) {
 
     useEffect(() => {
         const loadToken = async () => {
-            const res = await api.get("/api/queue/my-token");
-            setMyToken(res.data.token_number);
-            setAheadCount(res.data.ahead);
+            try {
+                const res = await api.get("/api/tokens");
+                const userToken = res.data.find((t: QueueItem) => t.user_id === user.id);
+                if (userToken) {
+                    setMyToken(userToken.token_number);
+                    const ahead = res.data.filter(
+                        (t: QueueItem) => t.status === "waiting" && t.token_number < userToken.token_number
+                    ).length;
+                    setAheadCount(ahead);
+                }
+            } catch (err) {
+                console.error("Failed to load token", err);
+            }
         };
 
         if (user.role === "user") {
             loadToken();
+            const interval = setInterval(loadToken, 5000);
+            return () => clearInterval(interval);
         }
     }, [user]);
-   // 👈 also fix dependency
+
     return (
         <>
             <DashboardStats />

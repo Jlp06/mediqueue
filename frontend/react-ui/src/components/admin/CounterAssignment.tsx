@@ -37,7 +37,7 @@ export default function CounterAssignment() {
     useEffect(() => {
         const loadQueue = async () => {
             try {
-                const res = await api.get("api//queue");
+                const res = await api.get("api/queue");
                 setQueue(res.data);
             } catch (error) {
                 console.error("Failed to fetch queue", error);

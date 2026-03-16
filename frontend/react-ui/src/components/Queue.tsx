@@ -6,23 +6,16 @@ interface Props {
     user: User;
 }
 
+interface Department {
+    id: number;
+    name: string;
+}
+
 export default function Queue({ user }: Props) {
     const [queue, setQueue] = useState<QueueItem[]>([]);
     const [success, setSuccess] = useState("");
-
-    const generateToken = async () => {
-        try {
-            await api.post("/api/tokens/generate", {
-                department_id: 1,
-                user_id: user.id,
-            });
-            setSuccess("Token generated successfully 🎉");
-            fetchQueue();
-            setTimeout(() => setSuccess(""), 3000);
-        } catch {
-            // optional: error handling later
-        }
-    };
+    const [departments, setDepartments] = useState<Department[]>([]);
+    const [selectedDept, setSelectedDept] = useState<number>(1);
 
     const fetchQueue = async () => {
         const res = await api.get("/api/tokens", {
@@ -33,13 +26,41 @@ export default function Queue({ user }: Props) {
         setQueue(res.data);
     };
 
+    const fetchDepartments = async () => {
+        try {
+            const res = await api.get("/api/departments");
+            setDepartments(res.data);
+            if (res.data.length > 0) setSelectedDept(res.data[0].id);
+        } catch (err) {
+            console.error("Failed to fetch departments", err);
+        }
+    };
+
+    const generateToken = async () => {
+        try {
+            await api.post("/api/tokens/generate", {
+                department_id: selectedDept,
+                user_id: user.id,
+            });
+            setSuccess("Token generated successfully 🎉");
+            fetchQueue();
+            setTimeout(() => setSuccess(""), 3000);
+        } catch {
+            // optional: error handling later
+        }
+    };
+
     useEffect(() => {
+        // eslint-disable-next-line
         fetchQueue();
+        fetchDepartments();
         const interval = setInterval(fetchQueue, 5000);
         return () => clearInterval(interval);
-    }, []); // eslint-disable-line react-hooks/exhaustive-deps
+    }, []); 
 
-    const userToken = queue.find(q => q.user_id === user.id);
+    const userToken = queue.find(
+        q => q.user_id === user.id && q.status !== "completed" && q.department_id === selectedDept
+    );
     const hasToken = !!userToken;
     const nowServingToken = queue.find(q => q.status === "serving");
     const tokensAhead = userToken
@@ -53,10 +74,24 @@ export default function Queue({ user }: Props) {
 
             {success && <p className="success">{success}</p>}
 
+            {/* Department selector — only show if no token yet */}
+            {!hasToken && (
+                <select
+                    value={selectedDept}
+                    onChange={(e) => setSelectedDept(Number(e.target.value))}
+                    style={{ marginBottom: "8px", display: "block", width: "100%" }}
+                >
+                    {departments.map((d) => (
+                        <option key={d.id} value={d.id}>{d.name}</option>
+                    ))}
+                </select>
+            )}
+
             <button onClick={generateToken} disabled={hasToken}>
                 {hasToken ? "Token Already Generated" : "Generate Token"}
             </button>
 
+            {/* Now Serving Banner */}
             {nowServingToken && (
                 <div style={{
                     background: "#0b5ed7",
@@ -80,6 +115,7 @@ export default function Queue({ user }: Props) {
                 <>
                     <p className="status">
                         Your Token: <b>#{userToken.token_number}</b><br />
+                        Department: <b>{userToken.department_name || "General"}</b><br />
                         People ahead of you: <b>{tokensAhead.length}</b>
                     </p>
                     {tokensAhead.length === 0 ? (

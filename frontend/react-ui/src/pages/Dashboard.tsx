@@ -16,12 +16,16 @@ export default function Dashboard({ user }: { user: User }) {
             try {
                 const res = await api.get("/api/tokens");
                 const userToken = res.data.find((t: QueueItem) => t.user_id === user.id);
-                if (userToken) {
+                if (userToken && userToken.status !== "completed") {
                     setMyToken(userToken.token_number);
                     const ahead = res.data.filter(
                         (t: QueueItem) => t.status === "waiting" && t.token_number < userToken.token_number
                     ).length;
                     setAheadCount(ahead);
+                } else {
+                    // Token was served — reset
+                    setMyToken(null);
+                    setAheadCount(0);
                 }
             } catch (err) {
                 console.error("Failed to load token", err);
@@ -39,7 +43,7 @@ export default function Dashboard({ user }: { user: User }) {
         <>
             <DashboardStats />
 
-            {user.role === "user" && (
+            {user.role === "user" && myToken && (
                 <div className="my-token-card">
                     <h3>🎟 Your Token</h3>
                     <p className="token-number">#{myToken}</p>

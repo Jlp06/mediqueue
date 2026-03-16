@@ -62,10 +62,11 @@ router.post("/login", async (req, res) => {
             return res.status(401).json({ message: "Invalid credentials" });
         }
 
+        // ✅ Changed from 1h to 24h
         const token = jwt.sign(
             { id: user.id, role: user.role },
             "jwt_secret_key",
-            { expiresIn: "1h" }
+            { expiresIn: "24h" }
         );
 
         res.json({
@@ -82,9 +83,8 @@ router.post("/login", async (req, res) => {
     }
 });
 
-/* GENERATE TOKEN */
-/* GET ALL TOKENS - for dashboard stats */
-router.get("/tokens", authenticate, async (req, res) => {
+/* GET ALL TOKENS - public, no auth required */
+router.get("/tokens", async (req, res) => {
     try {
         const result = await pool.query(
             `SELECT t.*, d.name as department_name 
@@ -112,8 +112,8 @@ router.get("/queue", async (req, res) => {
     }
 });
 
-//serve next patient
-router.post("/queue/next", authenticate, authenticate, authorizeAdmin, async (req, res) => {
+// serve next patient
+router.post("/queue/next", authenticate, authorizeAdmin, async (req, res) => {
     try {
         const result = await pool.query(
             "DELETE FROM queue WHERE token_number = (SELECT token_number FROM queue ORDER BY token_number ASC LIMIT 1) RETURNING *"
@@ -155,12 +155,7 @@ router.get("/queue/my-token", authenticate, async (req, res) => {
 
 router.delete("/queue/:token", async (req, res) => {
     const { token } = req.params;
-
-    await pool.query(
-        "DELETE FROM queue WHERE token_number = $1",
-        [token]
-    );
-
+    await pool.query("DELETE FROM queue WHERE token_number = $1", [token]);
     res.json({ message: "Token removed" });
 });
 

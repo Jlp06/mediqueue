@@ -29,10 +29,11 @@ router.post("/generate", async (req, res) => {
     res.json(result.rows[0]);
 });
 
-// Serve next token
+//Serve next token
 router.post("/serve-next", async (req, res) => {
     try {
-        // Get next waiting token
+        const { counter_id } = req.body;
+
         const tokenRes = await db.query(
             "SELECT * FROM tokens WHERE status='waiting' ORDER BY id LIMIT 1"
         );
@@ -43,31 +44,31 @@ router.post("/serve-next", async (req, res) => {
 
         const token = tokenRes.rows[0];
 
-        // Get any active counter
-        const counterRes = await db.query(
-            "SELECT * FROM counters WHERE active=true ORDER BY id LIMIT 1"
-        );
-
-        if (!counterRes.rows.length) {
-            return res.json({ message: "No counters available" });
+        // Use provided counter_id or fall back to auto-picking
+        let counter;
+        if (counter_id) {
+            const counterRes = await db.query(
+                "SELECT * FROM counters WHERE id=$1", [counter_id]
+            );
+            counter = counterRes.rows[0];
+        } else {
+            const counterRes = await db.query(
+                "SELECT * FROM counters WHERE active=true ORDER BY id LIMIT 1"
+            );
+            counter = counterRes.rows[0];
         }
 
-        const counter = counterRes.rows[0];
+        if (!counter) return res.json({ message: "No counters available" });
 
-        // Mark previous serving token as completed
         await db.query("UPDATE tokens SET status='completed' WHERE status='serving'");
-
-        // Mark this token as serving + assign counter
         await db.query(
             "UPDATE tokens SET status='serving', counter_id=$1 WHERE id=$2",
             [counter.id, token.id]
         );
-        
+
         const io = req.app.get("io");
+        io.emit("tokenUpdate");
 
-        io.emit("tokenUpdate"); // notify all screens
-
-        // Return updated token
         res.json({
             token_number: token.token_number,
             counter: counter.name,

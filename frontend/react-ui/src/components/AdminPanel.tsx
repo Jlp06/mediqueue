@@ -5,33 +5,23 @@ import type { QueueItem } from "../types";
 export default function AdminPanel() {
     const [queue, setQueue] = useState<QueueItem[]>([]);
 
-    const serveNext = async () => {
-            await api.post("/api/queue/next");
+    const fetchQueue = async () => {
+        const res = await api.get("/api/tokens");
+        // Only show waiting and serving tokens
+        setQueue(res.data.filter((t: QueueItem) => t.status === "waiting" || t.status === "serving"));
+    };
 
-        const res = await api.get("/api/queue", {
-            headers: {
-                Authorization: `Bearer ${localStorage.getItem("token")}`,
-            },
-        });
-            setQueue(res.data);
+    const serveNext = async () => {
+        await api.post("/api/tokens/serve-next");
+        fetchQueue();
     };
 
     useEffect(() => {
-        const loadQueue = async () => {
-            const res = await api.get("/api/queue", {
-                headers: {
-                    Authorization: `Bearer ${localStorage.getItem("token")}`,
-                },
-            });
-            setQueue(res.data);
-        };
-
-        loadQueue();
-        const interval = setInterval(loadQueue, 5000);
-
+        // eslint-disable-next-line
+        fetchQueue();
+        const interval = setInterval(fetchQueue, 5000);
         return () => clearInterval(interval);
     }, []);
-
 
     return (
         <div className="card">
@@ -43,8 +33,9 @@ export default function AdminPanel() {
 
             <ul className="queue-list">
                 {queue.map((q) => (
-                    <li key={q.token_number}>
+                    <li key={q.id}>
                         Token #{q.token_number}
+                        {q.status === "serving" && <strong> — Now Serving</strong>}
                     </li>
                 ))}
             </ul>
